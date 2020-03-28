@@ -1,47 +1,72 @@
-from tkinter import *
+from tkinter import Canvas, Tk
 from random import randint
 
-root = Tk()
-root.geometry('300x300')
 
-a = randint(0,9)
-b = randint(0,9)
+class Snake(Tk):
+    def __init__(self):
+        Tk.__init__(self)
 
-def move(event):
-    global a,b
-    if event.char == 'w':
-        pg.create_rectangle(a*30, b*30, 30*(a+1), 30*(b+1), fill = 'gray')
-        b -= 1
-        pg.create_rectangle(a*30, b*30, 30*(a+1), 30*(b+1), fill = 'yellow')
+        self.geometry('300x300')
 
-    if event.char == 'a':
-        pg.create_rectangle(a*30, b*30, 30*(a+1), 30*(b+1), fill = 'gray')
-        a -= 1
-        pg.create_rectangle(a*30, b*30, 30*(a+1), 30*(b+1), fill = 'yellow')
+        self.canvas = Grid(self)
+        self.canvas.pack()
 
-    if event.char == 's':
-        pg.create_rectangle(a*30, b*30, 30*(a+1), 30*(b+1), fill = 'gray')
-        b += 1
-        pg.create_rectangle(a*30, b*30, 30*(a+1), 30*(b+1), fill = 'yellow')
+class Grid(Canvas):
+    def __init__(self, parent):
+        self.parent = parent
 
-    if event.char == 'd':
-        pg.create_rectangle(a*30, b*30, 30*(a+1), 30*(b+1), fill = 'gray')
-        a += 1
-        pg.create_rectangle(a*30, b*30, 30*(a+1), 30*(b+1), fill = 'yellow')
+        Canvas.__init__(self, parent, width = 300, height = 300)
 
 
-pg = Canvas(root, width = 300, height = 300)
-pg.focus_set()
-pg.bind('<Key>', move)
+        # self.a = randint(0,9)
+        # self.b = randint(0,9)
 
+        self.a = 4
+        self.b = 4
 
-for i in range(10):
-    for j in range(10):
-        pg.create_rectangle(i*30, j*30, 30*(i+1), 30*(j+1), fill = 'gray')
+        for i in range(10):
+            for j in range(10):
+                self.create_rectangle(i*30, j*30, 30*(i+1), 30*(j+1), fill = 'gray')
 
+        self.create_rectangle(self.a*30, self.b*30, 30*(self.a+1), 30*(self.b+1), fill = 'yellow')
 
-pg.create_rectangle(a*30, b*30, 30*(a+1), 30*(b+1), fill = 'yellow')
+                
+        self.focus_set()
+        self.bind('<Key>', self.changemove)
 
-pg.pack()
+        self.direction = 'd'
 
-root.mainloop()
+        self.keepmoving()
+
+    def move(self, dir):
+
+        if dir == 'w':
+            self.create_rectangle(self.a*30, self.b*30, 30*(self.a+1), 30*(self.b+1), fill = 'gray')
+            self.b -= 1
+            self.create_rectangle(self.a*30, self.b*30, 30*(self.a+1), 30*(self.b+1), fill = 'yellow')
+
+        if dir == 'a':
+            self.create_rectangle(self.a*30, self.b*30, 30*(self.a+1), 30*(self.b+1), fill = 'gray')
+            self.a -= 1
+            self.create_rectangle(self.a*30, self.b*30, 30*(self.a+1), 30*(self.b+1), fill = 'yellow')
+
+        if dir == 's':
+            self.create_rectangle(self.a*30, self.b*30, 30*(self.a+1), 30*(self.b+1), fill = 'gray')
+            self.b += 1
+            self.create_rectangle(self.a*30, self.b*30, 30*(self.a+1), 30*(self.b+1), fill = 'yellow')
+
+        if dir == 'd':
+            self.create_rectangle(self.a*30, self.b*30, 30*(self.a+1), 30*(self.b+1), fill = 'gray')
+            self.a += 1
+            self.create_rectangle(self.a*30, self.b*30, 30*(self.a+1), 30*(self.b+1), fill = 'yellow')
+
+    def changemove(self, event):
+        self.direction = event.char
+
+    def keepmoving(self):
+        self.move(self.direction)
+        self.parent.after(300, self.keepmoving)
+
+app = Snake()
+app.mainloop()
+
