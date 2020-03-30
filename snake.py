@@ -17,24 +17,24 @@ class Grid(Canvas):
 
         Canvas.__init__(self, parent, width = 300, height = 300)
 
-        # self.head[0] = randint(0,9)
-        # self.head[1] = randint(0,9)
+        self.head = [0]*2
 
-        self.head = [4,4, 'yellow']
+        self.head[0] = randint(0,9)
+        self.head[1] = randint(0,9)
 
-        self.tails = [[2,4,'orange'],[3,4, 'orange']]
+        b = self.head[0]
+        a = self.head[1]-1
+        self.tails = [(a,b)]
 
         self.apple = [0]*2
-
-
 
         for i in range(15):
             for j in range(15):
                 self.create_rectangle(i*20, j*20, 20*(i+1), 20*(j+1), fill = 'gray')
 
-        self.create_rectangle(self.head[0]*20, self.head[1]*20, 20*(self.head[0]+1), 20*(self.head[1]+1), fill = self.head[2])
-        self.create_rectangle(self.tails[0][0]*20, self.tails[0][1]*20, 20*(self.tails[0][0]+1), 20*(self.tails[0][1]+1), fill = self.tails[0][2])
-        self.create_rectangle(self.tails[1][0]*20, self.tails[1][1]*20, 20*(self.tails[1][0]+1), 20*(self.tails[1][1]+1), fill = self.tails[1][2])
+        self.create_rectangle(self.head[0]*20, self.head[1]*20, 20*(self.head[0]+1), 20*(self.head[1]+1), fill = 'yellow')
+        self.create_rectangle(self.tails[0][0]*20, self.tails[0][1]*20, 20*(self.tails[0][0]+1), 20*(self.tails[0][1]+1), fill = 'orange')
+        # self.create_rectangle(self.tails[1][0]*20, self.tails[1][1]*20, 20*(self.tails[1][0]+1), 20*(self.tails[1][1]+1), fill = 'orange')
 
         self.focus_set()
         self.bind('<Key>', self.changemove)
@@ -52,22 +52,22 @@ class Grid(Canvas):
         if dir == 'w':
             self.head[1] -= 1
             self.ifoutside()
-            self.create_rectangle(self.head[0]*20, self.head[1]*20, 20*(self.head[0]+1), 20*(self.head[1]+1), fill = self.head[2])
+            self.create_rectangle(self.head[0]*20, self.head[1]*20, 20*(self.head[0]+1), 20*(self.head[1]+1), fill = 'yellow')
 
         elif dir == 'a':
             self.head[0] -= 1
             self.ifoutside()
-            self.create_rectangle(self.head[0]*20, self.head[1]*20, 20*(self.head[0]+1), 20*(self.head[1]+1), fill = self.head[2])
+            self.create_rectangle(self.head[0]*20, self.head[1]*20, 20*(self.head[0]+1), 20*(self.head[1]+1), fill = 'yellow')
 
         elif dir == 's':
             self.head[1] += 1
             self.ifoutside()
-            self.create_rectangle(self.head[0]*20, self.head[1]*20, 20*(self.head[0]+1), 20*(self.head[1]+1), fill = self.head[2])
+            self.create_rectangle(self.head[0]*20, self.head[1]*20, 20*(self.head[0]+1), 20*(self.head[1]+1), fill = 'yellow')
 
         elif dir == 'd':
             self.head[0] += 1
             self.ifoutside()
-            self.create_rectangle(self.head[0]*20, self.head[1]*20, 20*(self.head[0]+1), 20*(self.head[1]+1), fill = self.head[2])
+            self.create_rectangle(self.head[0]*20, self.head[1]*20, 20*(self.head[0]+1), 20*(self.head[1]+1), fill = 'yellow')
 
         else:
             pass
@@ -75,18 +75,23 @@ class Grid(Canvas):
         self.ifeaten()
 
     def movetail(self, object, behind):
-        self.create_rectangle(behind[0]*20, behind[1]*20, 20*(behind[0]+1), 20*(behind[1]+1), fill = object[2])
-        return behind[0], behind[1]
+        self.create_rectangle(behind[0]*20, behind[1]*20, 20*(behind[0]+1), 20*(behind[1]+1), fill = 'orange')
+        return (behind[0], behind[1])
 
     def movetails(self):
         for i in range(len(self.tails)):
-            if i+1 not in range(len(self.tails)):
-                self.tails[i][0], self.tails[i][1] = self.movetail(self.tails[i], self.head)
-            elif i == 0:
+            if i == 0:
                 self.create_rectangle(self.tails[i][0]*20, self.tails[i][1]*20, 20*(self.tails[i][0]+1), 20*(self.tails[i][1]+1), fill = 'gray')
-                self.tails[i][0], self.tails[i][1] = self.movetail(self.tails[i], self.tails[i+1])    
+            if i+1 not in range(len(self.tails)):
+                self.tails[i] = self.movetail(self.tails[i], self.head)
             else:
-                self.tails[i][0], self.tails[i][1] = self.movetail(self.tails[i], self.tails[i+1])
+                self.tails[i] = self.movetail(self.tails[i], self.tails[i+1])
+            
+
+    def addtail(self):
+        a = self.tails
+        b = [(self.tails[0][0], self.tails[0][1])] + a
+        self.tails = b
 
     def changemove(self, event):
         self.direction = event.char
@@ -128,6 +133,7 @@ class Grid(Canvas):
     def ifeaten(self):
         if self.head[0] == self.apple[0] and self.head[1] == self.apple[1]:
             self.createapple()
+            self.addtail()
 
 app = Snake()
 app.mainloop()
