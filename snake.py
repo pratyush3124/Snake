@@ -1,5 +1,6 @@
 from tkinter import Canvas, Tk
 from random import randint
+from tkinter import messagebox
 
 
 class Snake(Tk):
@@ -46,7 +47,7 @@ class Grid(Canvas):
         self.keepmoving()
 
     def movehead(self, dir):
-        
+        self.ifbit()
         self.movetails()
 
         if dir == 'w':
@@ -94,11 +95,26 @@ class Grid(Canvas):
         self.tails = b
 
     def changemove(self, event):
-        self.direction = event.char
+        x = self.head[0] - self.tails[len(self.tails)-1][0]
+        y = self.head[1] - self.tails[len(self.tails)-1][1]
+
+        if event.char == 'w' and y == 1:
+            pass
+        elif event.char == 's' and y == -1:
+            pass
+        elif event.char == 'a' and x == 1:
+            pass
+        elif event.char == 'd' and x == -1:
+            pass
+        else:
+            self.direction = event.char
 
     def keepmoving(self):
         self.movehead(self.direction)
-        self.parent.after(250, self.keepmoving)
+        if len(self.tails)<20:
+            self.parent.after(220, self.keepmoving)
+        else:
+            self.parent.after(220-(5*(len(self.tails)-20)), self.keepmoving)
 
     def ifoutside(self):
         if self.head[0] not in range(15):
@@ -134,6 +150,11 @@ class Grid(Canvas):
         if self.head[0] == self.apple[0] and self.head[1] == self.apple[1]:
             self.createapple()
             self.addtail()
+
+    def ifbit(self):
+        if (self.head[0], self.head[1]) in self.tails:
+            messagebox.showinfo('','You bit yourseves and died')
+            self.parent.destroy()
 
 app = Snake()
 app.mainloop()
